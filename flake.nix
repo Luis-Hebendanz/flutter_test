@@ -12,18 +12,48 @@
         luis = import luispkgs { inherit system; };
         pkgs = import nixpkgs { inherit system; };
         naersk-lib = pkgs.callPackage naersk { };
-        deps = with pkgs; [ chromium at-spi2-core dbus libxkbcommon xorg.libXdmcp libdatrie libthai libsepol libselinux util-linux wxGTK31 gtk3 gtk3-x11 pcre libepoxy ninja lzlib cmake clang cargo rustc rustfmt pre-commit rustPackages.clippy luis.flutter ];
+        name = "my_app3";
+        deps = with pkgs; [
+          chromium
+          at-spi2-core
+          dbus
+          libxkbcommon
+          xorg.libXdmcp
+          libdatrie
+          libthai
+          libsepol
+          libselinux
+          util-linux
+          wxGTK31
+          gtk3
+          gtk3-x11
+          pcre
+          libepoxy
+          ninja
+          lzlib
+          cmake
+          clang
+          cargo
+          rustc
+          rustfmt
+          pre-commit
+          rustPackages.clippy
+          luis.flutter
+        ];
       in
       {
         defaultPackage = with pkgs; stdenv.mkDerivation {
           src = ./.;
-          name = "test";
+          name = name;
           buildInputs = deps;
           nativeBuildInputs = [ pkg-config ];
           buildPhase = ''
-
+            cd "${name}" 
+            flutter build linux --no-pub --release
           '';
           installPhase = ''
+            mkdir -p $out/bin
+            cp -R build/linux/x64/release/bundle/* $out/bin
           '';
         };
 
