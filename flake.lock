@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "luispkgs": {
+      "locked": {
+        "lastModified": 1660437208,
+        "narHash": "sha256-P2AR2e4UqV4l4KoWJLGZMTx5jXYkZkEUAJFn0vU6Ubk=",
+        "owner": "Luis-Hebendanz",
+        "repo": "nixpkgs",
+        "rev": "3a887b0934f1dfe45839cfff69d38a6fa2b266a3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Luis-Hebendanz",
+        "ref": "luispkgs",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "naersk": {
       "inputs": {
         "nixpkgs": "nixpkgs"
@@ -51,6 +67,7 @@
     },
     "root": {
       "inputs": {
+        "luispkgs": "luispkgs",
         "naersk": "naersk",
         "nixpkgs": "nixpkgs_2",
         "utils": "utils"
