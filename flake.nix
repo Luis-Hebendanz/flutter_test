@@ -50,19 +50,25 @@
           buildInputs = buildDeps;
           nativeBuildInputs = nativeDeps;
           dontConfigure = true;
-          buildPhase = ''
+          dontBuild = true;
+          installPhase = ''
             flutter config --no-analytics
             export LD_LIBRARY_PATH="${libepoxy}/lib"
             flutter packages get --offline
             flutter build linux --release
-          '';
-          installPhase = ''
             mkdir -p $out/bin
             cp -R build/linux/x64/release/bundle/* $out/bin
           '';
           fixupPhase = ''
             autoPatchelf -- $out/bin
           '';
+
+          GIT_SSL_CAINFO = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+          SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+
+          impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
+            "GIT_PROXY_COMMAND" "NIX_GIT_SSL_CAINFO" "SOCKS_SERVER"
+          ];
         };
 
         defaultPackage = mkFlutterApp {

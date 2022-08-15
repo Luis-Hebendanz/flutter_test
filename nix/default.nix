@@ -27,6 +27,7 @@
 , dart
 , nukeReferences
 , targetPlatform
+, fetchgit 
 , bash
 , curl
 , unzip
@@ -67,7 +68,7 @@ let
     dontBuild = true;
 
     installPhase = ''
-      . ${../fetchgit/deterministic-git}
+      . ${./deterministic-git}
 
       TMP=$(mktemp -d)
 
