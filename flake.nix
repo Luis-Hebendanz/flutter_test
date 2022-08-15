@@ -12,9 +12,16 @@
         luis = import luispkgs { inherit system; };
         pkgs = import nixpkgs { inherit system; };
         naersk-lib = pkgs.callPackage naersk { };
-        name = "my_app3";
-        deps = with pkgs; [
-          chromium
+        appname = "my_app3";
+        nativeDeps = with pkgs; [
+            autoPatchelfHook
+            pkg-config
+            cmake
+            clang
+            luis.flutter
+            ninja
+        ];
+        buildDeps = with pkgs; [
           at-spi2-core
           dbus
           libxkbcommon
@@ -29,32 +36,42 @@
           gtk3-x11
           pcre
           libepoxy
-          ninja
           lzlib
-          cmake
           clang
-          cargo
-          rustc
-          rustfmt
-          pre-commit
-          rustPackages.clippy
-          luis.flutter
         ];
+        mkFlutterApp = pkgs.callPackage ./nix { flutter = luis.flutter; };
       in
       {
-        defaultPackage = with pkgs; stdenv.mkDerivation {
-          src = ./.;
-          name = name;
-          buildInputs = deps;
-          nativeBuildInputs = [ pkg-config ];
+        # In need look into the flutter2 builder:
+        # https://github.com/NixOS/nixpkgs/blob/350fd0044447ae8712392c6b212a18bdf2433e71/pkgs/build-support/flutter/default.nix
+        defaultPackage2 = with pkgs; stdenv.mkDerivation {
+          src = ./${appname};
+          name = appname;
+          buildInputs = buildDeps;
+          nativeBuildInputs = nativeDeps;
+          dontConfigure = true;
           buildPhase = ''
-            cd "${name}" 
-            flutter build linux --no-pub --release
+            flutter config --no-analytics
+            export LD_LIBRARY_PATH="${libepoxy}/lib"
+            flutter packages get --offline
+            flutter build linux --release
           '';
           installPhase = ''
             mkdir -p $out/bin
             cp -R build/linux/x64/release/bundle/* $out/bin
           '';
+          fixupPhase = ''
+            autoPatchelf -- $out/bin
+          '';
+        };
+
+        defaultPackage = mkFlutterApp {
+          pname = "my_app3";
+          version = "unstable";
+
+          #vendorHash = "sha256-3wVA9BLCnMijC0gOmskz+Hv7NQIGu/jhBDbWjmoq1Tc=";
+
+          src = ./my_app3;
         };
 
         defaultApp = utils.lib.mkApp {
@@ -62,12 +79,10 @@
         };
 
         devShell = with pkgs; mkShell {
-          nativeBuildInputs = [ pkg-config ];
-          buildInputs = deps;
-          RUST_SRC_PATH = rustPlatform.rustLibSrc;
-          hardeningDisable = [ "all" ];
+          nativeBuildInputs = nativeDeps ++ [ chromium ];
+          buildInputs = buildDeps;
           LD_LIBRARY_PATH = "${libepoxy}/lib";
-	        CHROME_EXECUTABLE = "chromium";
+          CHROME_EXECUTABLE = "chromium";
         };
       });
 }
