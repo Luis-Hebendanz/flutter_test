@@ -11,6 +11,7 @@
       let
         luis = import luispkgs { inherit system; };
         pkgs = import nixpkgs { inherit system; };
+        mkFlutterApp = pkgs.callPackage ./nix { flutter = luis.flutter; };
         naersk-lib = pkgs.callPackage naersk { };
         appname = "my_app3";
         nativeDeps = with pkgs; [
@@ -41,7 +42,7 @@
         ];
       in
       {
-        defaultPackage = luis.flutter.mkFlutterApp {
+        defaultPackage = mkFlutterApp {
           pname = "my_app3";
           version = "0.0.1";
           vendorHash = "sha256-HnZqtVTUJ9mQIRHCKCPrvRnqaHnYh+FELiF/pMKeCyQ=";
