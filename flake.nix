@@ -10,7 +10,10 @@
     utils.lib.eachDefaultSystem (system:
       let
         luis = import luispkgs { inherit system; };
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs { inherit system; config = {
+          allowUnfree = true;
+          android_sdk.accept_license = true;
+        }; };
         mkFlutterApp = pkgs.callPackage ./nix { flutter = luis.flutter; };
         naersk-lib = pkgs.callPackage naersk { };
         appname = "my_app3";
@@ -34,7 +37,6 @@
           util-linux
           wxGTK31
           gtk3
-          gtk3-x11
           pcre
           libepoxy
           lzlib
@@ -45,7 +47,7 @@
         defaultPackage = mkFlutterApp {
           pname = "my_app3";
           version = "0.0.1";
-          vendorHash = "sha256-HnZqtVTUJ9mQIRHCKCPrvRnqaHnYh+FELiF/pMKeCyQ=";
+          vendorHash = "sha256-ikZbvShphzyUzJKyHInbWSfVuMujXzQM78YD8atwLCY=";
           src = ./my_app3;
         };
 
@@ -55,9 +57,10 @@
 
         devShell = with pkgs; mkShell {
           nativeBuildInputs = nativeDeps ++ [ chromium ];
-          buildInputs = buildDeps;
+          buildInputs = buildDeps ++ nativeDeps;
           LD_LIBRARY_PATH = "${libepoxy}/lib";
           PUB_CACHE = "./.pub-cache";
+          #ANDROID_HOME="${androidenv.androidPkgs_9_0.androidsdk}/libexec/android-sdk/";
           CHROME_EXECUTABLE = "chromium";
         };
       });

@@ -210,7 +210,7 @@ let
         else
           cp -v "$depsFolder/pubspec.lock" .
         fi
-        diff -u pubspec.yaml $depsFolder/pubspec.yaml
+        diff -u pubspec.yaml $depsFolder/pubspec.yaml || (echo -e "\033[0;31mPlease update the vendorHash\033[0m" && exit 1)
 
         mv -v $(find $depsFolder/f -type f) .
 
