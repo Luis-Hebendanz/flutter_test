@@ -9,12 +9,11 @@
   outputs = { self, nixpkgs, utils, naersk, luispkgs }:
     utils.lib.eachDefaultSystem (system:
       let
-        luis = import luispkgs { inherit system; };
         pkgs = import nixpkgs { inherit system; config = {
           allowUnfree = true;
           android_sdk.accept_license = true;
         }; };
-        mkFlutterApp = pkgs.callPackage ./nix { flutter = luis.flutter; };
+        #mkFlutterApp = pkgs.callPackage ./nix { flutter = luis.flutter; };
         naersk-lib = pkgs.callPackage naersk { };
         appname = "my_app3";
         nativeDeps = with pkgs; [
@@ -22,7 +21,7 @@
             pkg-config
             cmake
             clang
-            luis.flutter
+            flutter
             ninja
         ];
         buildDeps = with pkgs; [
@@ -44,11 +43,11 @@
         ];
       in
       {
-        defaultPackage = mkFlutterApp {
-          pname = "my_app3";
+        defaultPackage = pkgs.flutter.mkFlutterApp {
+          pname = "dvbi";
           version = "0.0.1";
           vendorHash = "sha256-ikZbvShphzyUzJKyHInbWSfVuMujXzQM78YD8atwLCY=";
-          src = ./my_app3;
+          src = ./dvbi_flutter_client;
         };
 
         defaultApp = utils.lib.mkApp {
